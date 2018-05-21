@@ -4,12 +4,14 @@
 #include<queue>
 #include<stdlib.h>
 using namespace std;
-#define windowlength 450
-#define windowwidth 450
+#define windowlength 1600
+#define windowwidth 900
+#define gamelength 450
+#define gamewidth 450
 #define bodylength 15
 int speed ;
 int direction;
-int inf[windowlength / bodylength][windowwidth / bodylength];
+int inf[gamelength / bodylength][gamewidth / bodylength];
 bool havefood;
 class body {
 public:
@@ -21,7 +23,33 @@ public:
 	}
 };
 queue <body> snake;
+int list() {
+	printf("请输入难度等级(1-5之间，数字越大，越难),按回车退出。\n");
+	char x = _getch();
+	switch (x) {
+	case '1':speed = 800; break;
+	case '2':speed = 500; break;
+	case '3':speed = 300; break;
+	case '4':speed = 100; break;
+	case '5':speed = 50; break;
+	case 13:return 0;
+	default:printf("请输入有效数字\n"); list(); break;
+	}
+	return 1;
+}
 void creat() {
+	initgraph(windowlength, windowwidth);
+	direction = 2;//默认方向向下
+	havefood = false;
+	setorigin(100, 100);
+	setlinecolor(RED);
+	setlinestyle(PS_DASHDOT|PS_JOIN_ROUND,5);
+	line(-3, -3, -3, 3 + gamewidth);
+	line(gamelength+3, -3, gamelength + 3, 3 + gamewidth);
+	line(-3, -3, gamelength+3 , -3);
+	line(-3, 3 + gamewidth, gamelength+3 , 3 + gamewidth);
+	setlinestyle(PS_SOLID , 1);
+	setlinecolor(BLUE);
 	setfillcolor(BLUE);
 	body a, b, c;
 	a.setbody(0, 0);
@@ -38,7 +66,13 @@ void creat() {
 	fillrectangle(c.x, c.y, c.x + bodylength, c.y + bodylength);
 }
 void lose() {
-	outtextxy(windowlength / 2-80, windowwidth/2-30, "你输了，使用回车退出");
+	outtextxy(gamelength / 2-80, gamewidth/2-30, "你输了，使用回车退出");
+	char x;
+	while (x = _getch())
+		if (x == 13) {
+			closegraph();
+			return;
+		}
 }
 bool judgeandmove(body a,int x,body tail) {
 	body temp;
@@ -62,7 +96,7 @@ bool judgeandmove(body a,int x,body tail) {
 		}
 	}
 	else if (x == 2 ) {
-		if(tail.y == windowwidth - bodylength|| inf[tail.x / bodylength][tail.y / bodylength + 1] == 1)
+		if(tail.y == gamewidth - bodylength|| inf[tail.x / bodylength][tail.y / bodylength + 1] == 1)
 		return false;
 		else if (inf[tail.x / bodylength][tail.y / bodylength + 1] == 2) {
 			temp.setbody(tail.x, tail.y + bodylength);
@@ -100,7 +134,7 @@ bool judgeandmove(body a,int x,body tail) {
 		}
 	}
 	else if (x == 4 ) {
-		if(tail.x == windowlength - bodylength|| inf[tail.x / bodylength + 1][tail.y / bodylength] == 1)
+		if(tail.x == gamelength - bodylength|| inf[tail.x / bodylength + 1][tail.y / bodylength] == 1)
 	    return false;
 		else if (inf[tail.x / bodylength + 1][tail.y / bodylength] == 2) {
 			temp.setbody(tail.x + bodylength, tail.y);
@@ -122,9 +156,8 @@ bool judgeandmove(body a,int x,body tail) {
 }
 void food() {
 	int x, y;
-	srand((unsigned int)time(NULL));
-	x = rand() % (windowlength / bodylength);
-	y = rand() % (windowlength / bodylength);
+	x = rand() % (gamelength / bodylength);
+	y = rand() % (gamelength / bodylength);
 	if (inf[x][y] == 1) {
 		food();
 		return;
@@ -135,46 +168,34 @@ void food() {
 		fillrectangle(x*bodylength, y*bodylength, x*bodylength + bodylength, y*bodylength + bodylength);
 	}
 }
-int list() {
-	printf("请输入难度等级(1-5之间，数字越大，越难),按回车退出。\n");
-	char x = _getch();
-	switch (x) {
-	case '1':speed = 800; break;
-	case '2':speed = 500; break;
-	case '3':speed = 300; break;
-	case '4':speed = 100; break;
-	case '5':speed = 50; break;
-	case 13:return 0;
-	default:list();
-	}
-	return 1;
-}
-int main() {
+int game() {	
+	memset(inf, 0, sizeof(inf));
+	while (!snake.empty())
+		snake.pop();
 	if (list() == 0)
 		return 0;
-	direction = 2;//默认方向向下
-	initgraph(windowlength, windowwidth);
-	char x;
+	system("cls");
 	creat();
+	char x;
 	while (1) {
 		if (_kbhit()) {
 			x = _getch();
-			if (x == 'w'&&direction!=2) {
+			if (x == 'w'&&direction != 2) {
 				direction = 1;
 			}
-			else if (x == 's'&&direction!=1) {
+			else if (x == 's'&&direction != 1) {
 				direction = 2;
 			}
-			else if (x == 'a'&&direction!=4) {
+			else if (x == 'a'&&direction != 4) {
 				direction = 3;
 			}
-			else if (x == 'd'&&direction!=3) {
+			else if (x == 'd'&&direction != 3) {
 				direction = 4;
 			}
 			else if (x == 27)
 				break;
 		}
-		if (judgeandmove(snake.front(), direction,snake.back())) {
+		if (judgeandmove(snake.front(), direction, snake.back())) {
 			;
 		}
 		else {
@@ -186,10 +207,10 @@ int main() {
 		Sleep(speed);
 		fflush(stdin);//清空输入流缓存，减小转向延迟
 	}
-	while (x = _getch())
-		if (x == 13)
-			break;
-	closegraph();
-
+	game();
+}
+int main() {
+	srand((unsigned int)time(NULL));
+	game();
 	return 0;
 }

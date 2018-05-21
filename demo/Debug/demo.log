@@ -1,2 +1,3 @@
 ﻿  demo.cpp
+d:\mycode\ccode\demo\demo\demo.cpp(211): warning C4715: “game”: 不是所有的控件路径都返回值
   demo.vcxproj -> D:\mycode\ccode\demo\Debug\demo.exe
