@@ -13,6 +13,8 @@ int speed ;
 int direction;
 int inf[gamelength / bodylength][gamewidth / bodylength];
 bool havefood;
+double score,k;
+char a[10];
 class body {
 public:
 	int x;
@@ -27,17 +29,19 @@ int list() {
 	printf("请输入难度等级(1-5之间，数字越大，越难),按回车退出。\n");
 	char x = _getch();
 	switch (x) {
-	case '1':speed = 800; break;
-	case '2':speed = 500; break;
-	case '3':speed = 300; break;
-	case '4':speed = 100; break;
-	case '5':speed = 50; break;
+	case '1':speed = 500; k = 0.5; break;
+	case '2':speed = 300;k=1; break;
+	case '3':speed = 180;k=1.5; break;
+	case '4':speed = 80;k=2; break;
+	case '5':speed = 30;k=3; break;
 	case 13:return 0;
 	default:printf("请输入有效数字\n"); list(); break;
 	}
 	return 1;
 }
 void creat() {
+	score = 0;
+	memset(inf, 0, sizeof(inf));
 	initgraph(windowlength, windowwidth);
 	direction = 2;//默认方向向下
 	havefood = false;
@@ -66,7 +70,9 @@ void creat() {
 	fillrectangle(c.x, c.y, c.x + bodylength, c.y + bodylength);
 }
 void lose() {
-	outtextxy(gamelength / 2-80, gamewidth/2-30, "你输了，使用回车退出");
+	_itoa_s((int)score, a, 10);
+	outtextxy(gamelength / 2 - 100, gamewidth / 2 - 30, "你的得分为:");
+	outtextxy(gamelength / 2 - 10, gamewidth / 2 - 30, a);
 	char x;
 	while (x = _getch())
 		if (x == 13) {
@@ -84,6 +90,7 @@ bool judgeandmove(body a,int x,body tail) {
 			snake.push(temp);
 			inf[tail.x / bodylength][tail.y / bodylength - 1] = 1;
 			havefood = false;
+			score += k;
 		}
 		else {
 			temp.setbody(tail.x, tail.y - bodylength);
@@ -103,6 +110,7 @@ bool judgeandmove(body a,int x,body tail) {
 			snake.push(temp);
 			inf[tail.x / bodylength][tail.y / bodylength + 1] = 1;
 			havefood = false;
+			score += k;
 		}
 		else {
 			temp.setbody(tail.x, tail.y + bodylength);
@@ -122,6 +130,7 @@ bool judgeandmove(body a,int x,body tail) {
 			snake.push(temp);
 			inf[tail.x / bodylength - 1][tail.y / bodylength] = 1;
 			havefood = false;
+			score += k;
 		}
 		else {
 			temp.setbody(tail.x - bodylength, tail.y);
@@ -141,6 +150,7 @@ bool judgeandmove(body a,int x,body tail) {
 			snake.push(temp);
 			inf[tail.x / bodylength + 1][tail.y / bodylength] = 1;
 			havefood = false;
+			score += k;
 		}
 		else {
 			temp.setbody(tail.x + bodylength, tail.y);
@@ -169,7 +179,6 @@ void food() {
 	}
 }
 int game() {	
-	memset(inf, 0, sizeof(inf));
 	while (!snake.empty())
 		snake.pop();
 	if (list() == 0)
@@ -180,16 +189,16 @@ int game() {
 	while (1) {
 		if (_kbhit()) {
 			x = _getch();
-			if (x == 'w'&&direction != 2) {
+			if ((x == 'w'||x=='W')&&direction != 2) {
 				direction = 1;
 			}
-			else if (x == 's'&&direction != 1) {
+			else if ((x == 's'||x=='S')&&direction != 1) {
 				direction = 2;
 			}
-			else if (x == 'a'&&direction != 4) {
+			else if ((x == 'a'||x=='A')&&direction != 4) {
 				direction = 3;
 			}
-			else if (x == 'd'&&direction != 3) {
+			else if ((x == 'd'||x=='D')&&direction != 3) {
 				direction = 4;
 			}
 			else if (x == 27)
